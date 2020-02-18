@@ -5,7 +5,7 @@
 import numpy as np
 
 class Node:
-    def __init__(self,puz, level):
+    def __init__(self,puz):
         #puzzle is the arrangement of the digits
         #children is the frontier or the nodes to be explored
         #parent is the current node
@@ -16,15 +16,19 @@ class Node:
         self.pos = 0
         self.level = 0
     
+    #Function for taking user-input
     def TakeInput():
+        print("Input numbers row-wise; i.e. 1 2 3 4 5 6 7 8 0: ")
         new_puzzle = [int(x) for x in input().split()]
         return new_puzzle
-        
+    
+    #Function to check the digit zero in the puzzle    
     def CheckZero(self,puz):
         for i in range(0,9):
             if puz[i] == 0:
                 return i
-    
+   
+    #Function to check if goal state is reached
     def CheckGoal(self):
         GoalFlag = True
         goal = [1,2,3,4,5,6,7,8,0]
@@ -33,7 +37,7 @@ class Node:
             return GoalFlag
         return GoalFlag
     
-    
+    #Function to move slide up
     def SlideUp(self):
         if(self.pos!=0 and self.pos!=1 and self.pos!=2):
             puz = self.puzzle[:]
@@ -41,54 +45,72 @@ class Node:
             temp = puz[self.pos]
             puz[self.pos] = puz[self.pos-3]
             puz[self.pos-3] = temp
-            child = Node(puz, self.level + 1)
+            child = Node(puz)
+            #child = Node(puz, self.level + 1)
             #append to frontier/children list
             self.children.append(child)
             #self.level = self.level + 1
             #make parent node as current node
             child.parent = self
     
+    #Function to move slide right
     def SlideRight(self):
         if(self.pos%3 < 2):
             puz = self.puzzle[:]
             temp = puz[self.pos]
             puz[self.pos] = puz[self.pos+1]
             puz[self.pos+1] = temp
-            child = Node(puz, self.level + 1)
+            child = Node(puz)
+            #child = Node(puz, self.level + 1)
             self.children.append(child)
             #self.level = self.level + 1
             child.parent = self
     
+    #Function to move slide down
     def SlideDown(self):
         if(self.pos!=6 and self.pos!=7 and self.pos!=8):
             puz = self.puzzle[:]
             temp = puz[self.pos]
             puz[self.pos] = puz[self.pos+3]
             puz[self.pos+3] = temp
-            child = Node(puz, self.level + 1)
+            child = Node(puz)
+            #child = Node(puz, self.level + 1)
             self.children.append(child)
             #self.level = self.level + 1
             child.parent = self
     
+    #Function to move slide left
     def SlideLeft(self):
         if(self.pos%3 != 0):
             puz = self.puzzle[:]
             temp = puz[self.pos]
             puz[self.pos] = puz[self.pos-1]
             puz[self.pos-1] = temp
-            #child = Node(puz)
-            child = Node(puz, self.level + 1)
+            child = Node(puz)
+            #child = Node(puz, self.level + 1)
             self.children.append(child)
             #self.level = self.level + 1
             child.parent = self
     
+    #Function to slide tile in all possible directions, to generaye child nodes
     def PuzzleIteration(self):
         self.pos = self.CheckZero(self.puzzle)        
-        self.SlideUp()
         self.SlideRight()
         self.SlideDown()
         self.SlideLeft()
+        self.SlideUp()
         #print("iter")
+    
+    #Function to display puzzle 
+    def DisplayPuzzle(self):
+        print()
+        c = 0
+        for i in range(3):
+            for j in range(3):
+                print(self.puzzle[c], end = " ")
+                #print(" ")
+                c = c + 1
+            print()
     
     def h_score(self):
         hs = 0
@@ -106,64 +128,44 @@ class Node:
     def PrintScore(self):
         print("F-score = "+str(self.f_score))
     
-        
-def BFSalgo(rooot):
-    visited_nodes = []
+#Breadth first search algorithm to solve the 8 puzzle        
+def BFSalgo(root):
+    visited_nodes = set()
     frontier = []
-    visited_nodes.append(rooot.puzzle )
-    frontier.append(rooot)
-    #return 0
-    while True:
-        CurrentPuzzle = frontier.pop(0)
-        #CurrentPuzzle = frontier[0]
-        #print("pop")        
-        if CurrentPuzzle.CheckGoal():
-                #print(Node.f_score())
-                solution = []
-                solution.append(CurrentPuzzle)
-                while CurrentPuzzle.parent != None:
-                    CurrentPuzzle = CurrentPuzzle.parent
-                    solution.append(CurrentPuzzle)                    
-                return solution
-        CurrentPuzzle.PuzzleIteration()
-        for i in range(len(CurrentPuzzle.children)):
-            ToBeExplored = CurrentPuzzle.children[i]
-            if(not ToBeExplored.puzzle in visited_nodes):
-                frontier.append(ToBeExplored)
-                visited_nodes.append(ToBeExplored.puzzle) 
-        #print(len(visited_nodes))
-
-def NodesVisited(root): 
-    visited_nodes = []
-    frontier = []
-    visited_nodes.append(root.puzzle )
+    visited_nodes.add(str(root.puzzle))
     frontier.append(root)
+    print("Solving...")
     #return 0
-    while True:
+    while True:        
         CurrentPuzzle = frontier.pop(0)
-        #CurrentPuzzle = frontier[0]
-        #print("pop")        
+        #Check if goal position is reached
         if CurrentPuzzle.CheckGoal():
-            pass                
+            solution = []
+            solution.append(CurrentPuzzle)
+            #Tracing the moves to get to goal position
+            while CurrentPuzzle.parent != None:
+                CurrentPuzzle = CurrentPuzzle.parent
+                solution.append(CurrentPuzzle)               
+            print("Puzzle solved")
+            print("Total configurations explored: "+str(len(visited_nodes)))
+            print("Moves for reaching the goal state: "+str(len(solution)-1))
+            return solution, visited_nodes
+        #Iterating all the possible moves for a particular node
         CurrentPuzzle.PuzzleIteration()
         for i in range(len(CurrentPuzzle.children)):
             ToBeExplored = CurrentPuzzle.children[i]
-            if(not ToBeExplored.puzzle in visited_nodes):
+            #Checking if iteration already explored, if not so it is added to
+            #explored
+            if(not str(ToBeExplored.puzzle) in visited_nodes):
                 frontier.append(ToBeExplored)
-                visited_nodes.append(ToBeExplored.puzzle) 
-        #return(len(visited_nodes))
-        return visited_nodes
-    
-            
+                visited_nodes.add(str(ToBeExplored.puzzle))                           
+                                       
 
 if __name__ == "__main__":
-    level = 0
-    #fx = []
-    #fx = Node.f_score()
-    visited = []
     count = 0
     puzzle = Node.TakeInput()
-    root = Node(puzzle,level)
+    #Create object root from class Node
+    root = Node(puzzle)
     #check solvabiity
     for i in range(0,8):
         for j in range(i,9):
@@ -172,25 +174,28 @@ if __name__ == "__main__":
     if count % 2 == 1:
         print("No solution exists")
     else:
-        #root = Node(puzzle)
         print("Solution exists")
-        #print(root.puzzle)
-        #print(root.level)
-        #f = BFSalgo(root)
-        sol = BFSalgo(root)
-        visited = NodesVisited(root)
+        sol, visited = BFSalgo(root)
         sol.reverse()
-        #print(visit_num)
-        #trial = sol[root.puzzle[0]]
-        #print(sol[root.puzzle[0]])
-        #fx = sol[0].f_score()
-        #arr1 = np.asarray(sol[0].puzzle)
-        #print(arr1)
-        
-            #sol[i].level
-            #fx = sol[i].f_score()
-    
-           
+        for i in range(len(sol)):
+            sol[i].DisplayPuzzle()
+        #WriteToFile(root)
+        print()
+        print("Writing to files; may take some time")
+        #Writing puzzle data to files
+        file = open("nodePath.txt", "w")
+        for i in range(len(sol)):
+            temp = np.array(sol[i].puzzle).reshape((3,3))
+            file.write(str(temp) + '\n')
+        file.close()
+        #Writing explored nodes/puzzles to file
+        file = open("Nodes.txt", "w")
+        for i in range(len(visited)):
+            temp = np.array(list(visited)[i])
+            file.write(str(temp) + '\n')
+        file.close()
+        print("Files written")
+                
 """if __name__ == "__main__":
     main() """    
     
