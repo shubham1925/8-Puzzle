@@ -3,7 +3,6 @@
 # @brief BFS algorithm for 8 puzzle problem
 # =============================================================================
 import numpy as np
-import time
 
 class Node:
     def __init__(self,puz):
@@ -111,23 +110,7 @@ class Node:
                 print(self.puzzle[c], end = " ")
                 #print(" ")
                 c = c + 1
-            print()
-    
-    def h_score(self):
-        hs = 0
-        goal = [1,2,3,4,5,6,7,8,0]
-        for i in range(0,9):
-            if self.puzzle[i] != goal[i] and self.puzzle[i] != 0:
-                hs = hs + 1
-        return hs
-    
-    def f_score(self):
-        fs = 0
-        fs = self.h_score() + self.level
-        return fs
-         
-    def PrintScore(self):
-        print("F-score = "+str(self.f_score))
+            print()    
     
 #Breadth first search algorithm to solve the 8 puzzle        
 def BFSalgo(root):
@@ -177,13 +160,10 @@ if __name__ == "__main__":
         print("No solution exists")
     else:
         print("Solution exists")
-        tick = time.time()
         sol, visited = BFSalgo(root)
         sol.reverse()
-        tock = time.time()
         for i in range(len(sol)):
             sol[i].DisplayPuzzle()
-        print("Tme reqd: "+str(tock-tick))
         print()
         print("Writing to files; may take some time")
         print()
