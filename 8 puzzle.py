@@ -3,6 +3,7 @@
 # @brief BFS algorithm for 8 puzzle problem
 # =============================================================================
 import numpy as np
+import time
 
 class Node:
     def __init__(self,puz):
@@ -130,6 +131,7 @@ class Node:
     
 #Breadth first search algorithm to solve the 8 puzzle        
 def BFSalgo(root):
+    #set used for quick searching of visited states
     visited_nodes = set()
     frontier = []
     visited_nodes.add(str(root.puzzle))
@@ -175,29 +177,37 @@ if __name__ == "__main__":
         print("No solution exists")
     else:
         print("Solution exists")
+        tick = time.time()
         sol, visited = BFSalgo(root)
         sol.reverse()
+        tock = time.time()
         for i in range(len(sol)):
             sol[i].DisplayPuzzle()
-        #WriteToFile(root)
+        print("Tme reqd: "+str(tock-tick))
         print()
         print("Writing to files; may take some time")
+        print()
         #Writing puzzle data to files
         file = open("nodePath.txt", "w")
         for i in range(len(sol)):
             temp = np.array(sol[i].puzzle).reshape((3,3))
-            file.write(str(temp) + '\n')
+            temp = temp.T.reshape(1,9)
+            file.write(str(temp[0][0])+' '+str(temp[0][1])+' '+str(temp[0][2])+
+                       ' '+str(temp[0][3])+' '+str(temp[0][4])+' '+str(temp[0][5])+' '
+                       +str(temp[0][6])+' '+str(temp[0][7])+' '+str(temp[0][8])+'\n')
         file.close()
+        print("nodePath.txt updated")
+        print()
+        print("Now updating Nodes.txt")
         #Writing explored nodes/puzzles to file
         file = open("Nodes.txt", "w")
         for i in range(len(visited)):
-            temp = np.array(list(visited)[i])
-            file.write(str(temp) + '\n')
+            temp2 = np.array(list(visited)[i])
+            file.write(str(list(visited)[i][1])+' '+str(list(visited)[i][10])+' '+
+                       str(list(visited)[i][19])+' '+str(list(visited)[i][4])+' '+
+                       str(list(visited)[i][13])+' '+str(list(visited)[i][22])+' '+
+                       str(list(visited)[i][7])+' '+str(list(visited)[i][16])+' '+
+                       str(list(visited)[i][25]) + '\n')           
         file.close()
-        print("Files written")
-                
-"""if __name__ == "__main__":
-    main() """    
-    
-            
-        
+        print()
+        print("Nodes.txt updated")         
