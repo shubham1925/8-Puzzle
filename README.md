@@ -1,3 +1,4 @@
+[![License BSD 3-Clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/shubham1925/8-Puzzle/blob/master/LICENSE)
 # Path Planning Project: 8-Puzzle
 
 Overview:\
